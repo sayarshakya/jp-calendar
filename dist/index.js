@@ -75,14 +75,20 @@ const JapaneseCalendar = ({ onChange }) => {
     }, []);
     const prevMonth = () => setCurrent(new Date(current.getFullYear(), current.getMonth() - 1, 1));
     const nextMonth = () => setCurrent(new Date(current.getFullYear(), current.getMonth() + 1, 1));
+    const currentDate = React.useMemo(() => {
+        return formatJapaneseDate(toJapaneseDate(new Date()));
+    }, []);
     return (React.createElement("div", { ref: ref, style: { position: "relative", width: "100%", maxWidth: "320px" } },
-        React.createElement("input", { type: "text", readOnly: true, onClick: () => setOpen(!open), value: selected ? formatJapaneseDate(toJapaneseDate(selected)) : "", placeholder: "\u65E5\u4ED8\u3092\u9078\u629E", style: {
+        React.createElement("input", { type: "text", readOnly: true, onClick: () => setOpen(!open), value: selected
+                ? formatJapaneseDate(toJapaneseDate(selected))
+                : "", placeholder: `今日: ${currentDate}`, style: {
                 width: "100%",
-                padding: "10px",
+                padding: "10px 40px 10px 10px",
                 borderRadius: "8px",
                 border: "1px solid #ccc",
                 cursor: "pointer",
-                fontSize: "14px"
+                fontSize: "14px",
+                outline: "none"
             } }),
         open && (React.createElement("div", { style: {
                 position: "absolute",
@@ -118,7 +124,6 @@ const JapaneseCalendar = ({ onChange }) => {
                         } }, d ? d.getDate() : ""));
                 }))))));
 };
-// 🎨 Styles
 const grid = {
     display: "grid",
     gridTemplateColumns: "repeat(7, 1fr)",

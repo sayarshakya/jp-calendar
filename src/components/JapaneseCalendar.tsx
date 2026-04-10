@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useMemo  } from "react";
 import { DAYS_JP, formatMonthJP } from "../utils/japanese";
 import { getCalendarDays } from "../utils/calendar";
 import { toJapaneseDate } from "../utils/converter";
@@ -41,27 +41,32 @@ export const JapaneseCalendar = ({ onChange }: any) => {
   const nextMonth = () =>
     setCurrent(new Date(current.getFullYear(), current.getMonth() + 1, 1));
 
+  const currentDate = useMemo(() => {
+    return formatJapaneseDate(toJapaneseDate(new Date()));
+  }, []);
+
   return (
     <div ref={ref} style={{ position: "relative", width: "100%", maxWidth: "320px" }}>
-      
-      {/* Input */}
-      <input
-        type="text"
-        readOnly
-        onClick={() => setOpen(!open)}
-        value={selected ? formatJapaneseDate(toJapaneseDate(selected)) : ""}
-        placeholder="日付を選択"
-        style={{
-          width: "100%",
-          padding: "10px",
-          borderRadius: "8px",
-          border: "1px solid #ccc",
-          cursor: "pointer",
-          fontSize: "14px"
-        }}
-      />
-
-      {/* Popup */}
+        <input
+          type="text"
+          readOnly
+          onClick={() => setOpen(!open)}
+          value={
+            selected
+              ? formatJapaneseDate(toJapaneseDate(selected))
+              : ""
+          }
+          placeholder={`今日: ${currentDate}`}
+          style={{
+            width: "100%",
+            padding: "10px 40px 10px 10px",
+            borderRadius: "8px",
+            border: "1px solid #ccc",
+            cursor: "pointer",
+            fontSize: "14px",
+            outline: "none"
+          }}
+        />
       {open && (
         <div
           style={{
@@ -129,7 +134,6 @@ export const JapaneseCalendar = ({ onChange }: any) => {
   );
 };
 
-// 🎨 Styles
 const grid = {
   display: "grid",
   gridTemplateColumns: "repeat(7, 1fr)",
