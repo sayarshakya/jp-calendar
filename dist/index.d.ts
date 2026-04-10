@@ -1,0 +1,1 @@
+export { JapaneseCalendar } from "./components/JapaneseCalendar";

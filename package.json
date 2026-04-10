@@ -1,0 +1,17 @@
+{
+  "name": "jp-calendar",
+  "version": "1.0.2",
+  "description": "",
+  "main": "dist/index.js",
+  "module": "dist/index.esm.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "rollup -c"
+  },
+  "peerDependencies": {
+    "react": ">=17"
+  }
+}
