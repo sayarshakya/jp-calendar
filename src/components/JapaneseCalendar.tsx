@@ -4,32 +4,25 @@ import { getCalendarDays } from "../utils/calendar";
 import { toJapaneseDate } from "../utils/converter";
 import { formatJapaneseDate } from "../utils/formatter";
 
-interface Props {
-  onChange?: (date: string) => void; // YYYY-MM-DD
-}
+const formatDate = (date: Date) => {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+};
 
-export const JapaneseCalendar: React.FC<Props> = ({ onChange }) => {
+export const JapaneseCalendar = ({ onChange }: any) => {
   const [current, setCurrent] = useState(new Date());
   const [selected, setSelected] = useState<Date | null>(null);
   const [open, setOpen] = useState(false);
 
   const ref = useRef<HTMLDivElement>(null);
-
   const days = getCalendarDays(current);
 
   const handleClick = (date: Date) => {
     setSelected(date);
     setOpen(false);
-
-  const formatDate = (date: Date) => {
-    const y = date.getFullYear();
-    const m = String(date.getMonth() + 1).padStart(2, "0");
-    const d = String(date.getDate()).padStart(2, "0");
-    return `${y}-${m}-${d}`;
-  };
-
-  const iso = formatDate(date);
-    onChange?.(iso);
+    onChange?.(formatDate(date));
   };
 
   useEffect(() => {
@@ -49,85 +42,120 @@ export const JapaneseCalendar: React.FC<Props> = ({ onChange }) => {
     setCurrent(new Date(current.getFullYear(), current.getMonth() + 1, 1));
 
   return (
-    <div style={{ position: "relative", width: "250px" }} ref={ref}>
+    <div ref={ref} style={{ position: "relative", width: "100%", maxWidth: "320px" }}>
       
+      {/* Input */}
       <input
         type="text"
         readOnly
         onClick={() => setOpen(!open)}
-        value={
-          selected
-            ? formatJapaneseDate(toJapaneseDate(selected))
-            : ""
-        }
+        value={selected ? formatJapaneseDate(toJapaneseDate(selected)) : ""}
         placeholder="日付を選択"
         style={{
           width: "100%",
-          padding: "8px",
-          cursor: "pointer"
+          padding: "10px",
+          borderRadius: "8px",
+          border: "1px solid #ccc",
+          cursor: "pointer",
+          fontSize: "14px"
         }}
       />
 
+      {/* Popup */}
       {open && (
         <div
           style={{
             position: "absolute",
-            top: "40px",
+            top: "110%",
             left: 0,
+            width: "100%",
             background: "#fff",
-            border: "1px solid #ccc",
-            padding: "10px",
+            borderRadius: "10px",
+            boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+            padding: "12px",
             zIndex: 1000
           }}
         >
-
-          <div style={{ display: "flex", justifyContent: "space-between" }}>
-            <button onClick={prevMonth}>◀</button>
-            <strong>{formatMonthJP(current)}</strong>
-            <button onClick={nextMonth}>▶</button>
-          </div>
-
+          {/* Header */}
           <div
             style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(7, 1fr)",
-              marginTop: "10px"
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              marginBottom: "10px"
             }}
           >
+            <button onClick={prevMonth} style={navBtn}>◀</button>
+            <strong style={{ fontSize: "14px" }}>
+              {formatMonthJP(current)}
+            </strong>
+            <button onClick={nextMonth} style={navBtn}>▶</button>
+          </div>
+
+          {/* Days Header */}
+          <div style={grid}>
             {DAYS_JP.map((d) => (
-              <div key={d} style={{ textAlign: "center", fontWeight: "bold" }}>
+              <div key={d} style={dayHeader}>
                 {d}
               </div>
             ))}
 
-            {days.map((d, i) => (
-              <div
-                key={i}
-                onClick={() => d && handleClick(d)}
-                style={{
-                  height: "35px",
-                  textAlign: "center",
-                  cursor: d ? "pointer" : "default",
-                  background:
-                    selected &&
-                    d &&
-                    d.toDateString() === selected.toDateString()
-                      ? "#007bff"
-                      : "transparent",
-                  color:
-                    selected &&
-                    d &&
-                    d.toDateString() === selected.toDateString()
-                      ? "#fff"
-                      : "#000"
-                }}
-              >
-                {d ? d.getDate() : ""}
-              </div>
-            ))}
+            {/* Dates */}
+            {days.map((d, i) => {
+              const isSelected =
+                selected &&
+                d &&
+                d.toDateString() === selected.toDateString();
+
+              return (
+                <div
+                  key={i}
+                  onClick={() => d && handleClick(d)}
+                  style={{
+                    ...dayCell,
+                    background: isSelected ? "#2563eb" : "transparent",
+                    color: isSelected ? "#fff" : "#000",
+                    opacity: d ? 1 : 0.3
+                  }}
+                >
+                  {d ? d.getDate() : ""}
+                </div>
+              );
+            })}
           </div>
         </div>
       )}
     </div>
   );
+};
+
+// 🎨 Styles
+const grid = {
+  display: "grid",
+  gridTemplateColumns: "repeat(7, 1fr)",
+  gap: "4px"
+};
+
+const dayHeader = {
+  textAlign: "center" as const,
+  fontSize: "12px",
+  fontWeight: 600,
+  color: "#666"
+};
+
+const dayCell = {
+  textAlign: "center" as const,
+  padding: "8px 0",
+  borderRadius: "6px",
+  cursor: "pointer",
+  fontSize: "13px",
+  transition: "0.2s",
+};
+
+const navBtn = {
+  border: "none",
+  background: "#f1f5f9",
+  borderRadius: "6px",
+  padding: "4px 8px",
+  cursor: "pointer"
 };

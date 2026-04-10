@@ -45,6 +45,12 @@ function formatJapaneseDate(jd) {
     return `${jd.eraKanji}${jd.year}年${jd.month}月${jd.day}日`;
 }
 
+const formatDate = (date) => {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, "0");
+    const d = String(date.getDate()).padStart(2, "0");
+    return `${y}-${m}-${d}`;
+};
 const JapaneseCalendar = ({ onChange }) => {
     const [current, setCurrent] = useState(new Date());
     const [selected, setSelected] = useState(null);
@@ -54,14 +60,7 @@ const JapaneseCalendar = ({ onChange }) => {
     const handleClick = (date) => {
         setSelected(date);
         setOpen(false);
-        const formatDate = (date) => {
-            const y = date.getFullYear();
-            const m = String(date.getMonth() + 1).padStart(2, "0");
-            const d = String(date.getDate()).padStart(2, "0");
-            return `${y}-${m}-${d}`;
-        };
-        const iso = formatDate(date);
-        onChange === null || onChange === void 0 ? void 0 : onChange(iso);
+        onChange === null || onChange === void 0 ? void 0 : onChange(formatDate(date));
     };
     useEffect(() => {
         const handleOutside = (e) => {
@@ -74,48 +73,75 @@ const JapaneseCalendar = ({ onChange }) => {
     }, []);
     const prevMonth = () => setCurrent(new Date(current.getFullYear(), current.getMonth() - 1, 1));
     const nextMonth = () => setCurrent(new Date(current.getFullYear(), current.getMonth() + 1, 1));
-    return (React.createElement("div", { style: { position: "relative", width: "250px" }, ref: ref },
-        React.createElement("input", { type: "text", readOnly: true, onClick: () => setOpen(!open), value: selected
-                ? formatJapaneseDate(toJapaneseDate(selected))
-                : "", placeholder: "\u65E5\u4ED8\u3092\u9078\u629E", style: {
+    return (React.createElement("div", { ref: ref, style: { position: "relative", width: "100%", maxWidth: "320px" } },
+        React.createElement("input", { type: "text", readOnly: true, onClick: () => setOpen(!open), value: selected ? formatJapaneseDate(toJapaneseDate(selected)) : "", placeholder: "\u65E5\u4ED8\u3092\u9078\u629E", style: {
                 width: "100%",
-                padding: "8px",
-                cursor: "pointer"
+                padding: "10px",
+                borderRadius: "8px",
+                border: "1px solid #ccc",
+                cursor: "pointer",
+                fontSize: "14px"
             } }),
         open && (React.createElement("div", { style: {
                 position: "absolute",
-                top: "40px",
+                top: "110%",
                 left: 0,
+                width: "100%",
                 background: "#fff",
-                border: "1px solid #ccc",
-                padding: "10px",
+                borderRadius: "10px",
+                boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+                padding: "12px",
                 zIndex: 1000
             } },
-            React.createElement("div", { style: { display: "flex", justifyContent: "space-between" } },
-                React.createElement("button", { onClick: prevMonth }, "\u25C0"),
-                React.createElement("strong", null, formatMonthJP(current)),
-                React.createElement("button", { onClick: nextMonth }, "\u25B6")),
             React.createElement("div", { style: {
-                    display: "grid",
-                    gridTemplateColumns: "repeat(7, 1fr)",
-                    marginTop: "10px"
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    marginBottom: "10px"
                 } },
-                DAYS_JP.map((d) => (React.createElement("div", { key: d, style: { textAlign: "center", fontWeight: "bold" } }, d))),
-                days.map((d, i) => (React.createElement("div", { key: i, onClick: () => d && handleClick(d), style: {
-                        height: "35px",
-                        textAlign: "center",
-                        cursor: d ? "pointer" : "default",
-                        background: selected &&
-                            d &&
-                            d.toDateString() === selected.toDateString()
-                            ? "#007bff"
-                            : "transparent",
-                        color: selected &&
-                            d &&
-                            d.toDateString() === selected.toDateString()
-                            ? "#fff"
-                            : "#000"
-                    } }, d ? d.getDate() : ""))))))));
+                React.createElement("button", { onClick: prevMonth, style: navBtn }, "\u25C0"),
+                React.createElement("strong", { style: { fontSize: "14px" } }, formatMonthJP(current)),
+                React.createElement("button", { onClick: nextMonth, style: navBtn }, "\u25B6")),
+            React.createElement("div", { style: grid },
+                DAYS_JP.map((d) => (React.createElement("div", { key: d, style: dayHeader }, d))),
+                days.map((d, i) => {
+                    const isSelected = selected &&
+                        d &&
+                        d.toDateString() === selected.toDateString();
+                    return (React.createElement("div", { key: i, onClick: () => d && handleClick(d), style: {
+                            ...dayCell,
+                            background: isSelected ? "#2563eb" : "transparent",
+                            color: isSelected ? "#fff" : "#000",
+                            opacity: d ? 1 : 0.3
+                        } }, d ? d.getDate() : ""));
+                }))))));
+};
+// 🎨 Styles
+const grid = {
+    display: "grid",
+    gridTemplateColumns: "repeat(7, 1fr)",
+    gap: "4px"
+};
+const dayHeader = {
+    textAlign: "center",
+    fontSize: "12px",
+    fontWeight: 600,
+    color: "#666"
+};
+const dayCell = {
+    textAlign: "center",
+    padding: "8px 0",
+    borderRadius: "6px",
+    cursor: "pointer",
+    fontSize: "13px",
+    transition: "0.2s",
+};
+const navBtn = {
+    border: "none",
+    background: "#f1f5f9",
+    borderRadius: "6px",
+    padding: "4px 8px",
+    cursor: "pointer"
 };
 
 export { JapaneseCalendar };
